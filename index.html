@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js"
+      integrity="sha512-u9akINsQsAkG9xjc1cnGF4zw5TFDwkxuc9vUp5dltDWYCSmyd0meygbvgXrlc/z7/o4a19Fb5V0OUE58J7dcyw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+  </head>
+  <body style="max-width: 100vh">
+    <form style="margin: 1rem 0" name="form1" id="form1" method="post">
+      <label for="textBox" style="display: block">Text Moderation</label>
+      <textarea
+        id="textBox"
+        name="textBox"
+        rows="4"
+        cols="50"
+        style="display: block; margin: 1rem 0"
+      ></textarea>
+      <input id="submit" name="submit" type="submit" value="Submit" />
+      <input type="reset" value="Clear" />
+    </form>
+    <div>Result :</div>
+    <pre style="white-space: pre-wrap">
+      <div id="raw" style="margin: -1rem 0; "></div>
+      <div id="labels" ></div>
+    </pre>
+
+    <script>
+      document.getElementById("form1").addEventListener("submit", submit);
+
+      function submit(e) {
+        e.preventDefault();
+        console.log(document.getElementById("textBox").value);
+
+        var data = JSON.stringify({
+          text: `${document.getElementById("textBox").value}`,
+        });
+
+        var xhr = new XMLHttpRequest();
+        xhr.withCredentials = true;
+
+        xhr.addEventListener("readystatechange", function () {
+          if (this.readyState === 4) {
+            document.getElementById("raw").innerHTML =
+              `<div style="text-decoration: underline; margin-bottom: 1rem;">Raw</div>` +
+              this.responseText;
+
+            let data = JSON.parse(this.responseText)
+              .filter((data) => data.probability >= 0.5)
+              .map((data) => data.label);
+
+            if (data.length === 0) {
+              data = ["No Violations"];
+            }
+
+            document.getElementById("labels").innerHTML =
+              `<div style="text-decoration: underline; margin-bottom: 1rem;">Labels</div>` +
+              data.join(",");
+          }
+        });
+
+        xhr.open(
+          "POST",
+          "https://a3dbfc7a03f534709ab5420839b91b8d-c5105606bf80a250.elb.us-east-2.amazonaws.com/text-moderator-toloka",
+        );
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.send(data);
+      }
+    </script>
+  </body>
+</html>
