@@ -49,7 +49,7 @@
           if (this.readyState === 4) {
             document.getElementById("raw").innerHTML =
               `<div style="text-decoration: underline; margin-bottom: 1rem;">Raw</div>` +
-              this.responseText;
+              JSON.stringify(JSON.parse(this.responseText)[0]);
 
             let data = JSON.parse(this.responseText)
               .filter((data) => data.probability >= 0.5)
@@ -67,7 +67,7 @@
 
         xhr.open(
           "POST",
-          "https://a3dbfc7a03f534709ab5420839b91b8d-c5105606bf80a250.elb.us-east-2.amazonaws.com/text-moderator-toloka",
+          "http://a3dbfc7a03f534709ab5420839b91b8d-c5105606bf80a250.elb.us-east-2.amazonaws.com/text-moderator-toloka",
         );
         xhr.setRequestHeader("Content-Type", "application/json");
 
